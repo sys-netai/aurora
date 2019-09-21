@@ -14,9 +14,12 @@
 
 import numpy as np
 
-# The monitor interval class used to pass data from the PCC subsystem to
-# the machine learning module.
-#
+"""
+The monitor interval class used to pass data from the PCC subsystem to
+the machine learning module.
+
+"""
+
 class SenderMonitorInterval():
     def __init__(self,
                  sender_id,
