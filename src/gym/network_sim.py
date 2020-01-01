@@ -361,12 +361,7 @@ class Sender():
 
 class SimulatedNetworkEnv(gym.Env):
 
-    def __init__(self,
-                 history_len=arg_or_default("--history-len", default=10),
-                 features=arg_or_default("--input-features",
-                                         default="sent latency inflation,"
-                                                 + "latency ratio,"
-                                                 + "send ratio")):
+    def __init__(self, env_config=None):
         self.viewer = None
         self.rand = None
 
@@ -374,9 +369,9 @@ class SimulatedNetworkEnv(gym.Env):
         self.min_lat, self.max_lat = (0.05, 0.5)
         self.min_queue, self.max_queue = (0, 8)
         self.min_loss, self.max_loss = (0.0, 0.05)
-        self.history_len = history_len
-        print("History length: %d" % history_len)
-        self.features = features.split(",")
+        self.history_len = env_config['history_len']
+        print("History length: %d" % self.history_len)
+        self.features = env_config['features'].split(",")
         print("Features: %s" % str(self.features))
 
         self.links = None
