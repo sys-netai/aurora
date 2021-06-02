@@ -76,13 +76,13 @@ model = PPO1(
 for i in range(0, 6):
     with model.graph.as_default():
         saver = tf.train.Saver()
-        saver.save(training_sess, "./pcc_model_%d.ckpt" % i)
+        saver.save(training_sess, "./ckpt/pcc_model_%d.ckpt" % i)
     model.learn(total_timesteps=(1600 * 410))
 
 ##
 #   Save the model to the location specified below.
 ##
-default_export_dir = "/tmp/pcc_saved_models/model_A/"
+default_export_dir = "../models/aurora/"
 export_dir = arg_or_default("--model-dir", default=default_export_dir)
 with model.graph.as_default():
 
