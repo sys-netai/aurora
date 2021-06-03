@@ -108,4 +108,5 @@ venv.bak/
 
 # build file for c++
 *.o
-!udt/core/libudt.so
+udt/app/pccclient
+udt/app/pccserver
