@@ -159,8 +159,8 @@ void PccPythonRateController::GiveSample(int bytes_sent,
 
     // rtt_samples
     PyObject* rtt_samples = PyList_New(2);
-    PyList_SetItem(rtt_samples, 0, PyLong_FromLong(first_ack_latency_sec));
-    PyList_SetItem(rtt_samples, 1, PyLong_FromLong(last_ack_latency_sec));
+    PyList_SetItem(rtt_samples, 0, PyFloat_FromDouble(first_ack_latency_sec));
+    PyList_SetItem(rtt_samples, 1, PyFloat_FromDouble(last_ack_latency_sec));
     PyTuple_SetItem(args, 8, rtt_samples);
     
     // packet_size
