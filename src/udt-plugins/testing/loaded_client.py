@@ -53,7 +53,7 @@ for arg in sys.argv:
         RESET_RATE_MIN = float(arg_str)
         RESET_RATE_MAX = float(arg_str)
 
-aurora_file = open("aurora_runtime-{}.txt".format(os.getpid()), "w")
+aurora_file = open("aurora-runtime-{}.txt".format(os.getpid()), "w")
 
 
 class PccGymDriver:
