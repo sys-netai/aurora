@@ -22,13 +22,13 @@ parentdir = os.path.dirname(currentdir)
 grandparentdir = os.path.dirname(parentdir)
 sys.path.insert(0, parentdir)
 sys.path.insert(0, grandparentdir)
-    
+
 from common import sender_obs
 from common.simple_arg_parse import arg_or_default
 import loaded_agent
 
-if not hasattr(sys, 'argv'):
-    sys.argv  = ['']
+if not hasattr(sys, "argv"):
+    sys.argv = [""]
 
 MIN_RATE = 0.5
 MAX_RATE = 300.0
@@ -45,7 +45,7 @@ MODEL_PATH = arg_or_default("--model-path", "/tmp/")
 for arg in sys.argv:
     arg_str = "NULL"
     try:
-        arg_str = arg[arg.rfind("=") + 1:]
+        arg_str = arg[arg.rfind("=") + 1 :]
     except:
         pass
 
@@ -53,10 +53,13 @@ for arg in sys.argv:
         RESET_RATE_MIN = float(arg_str)
         RESET_RATE_MAX = float(arg_str)
 
-class PccGymDriver():
-    
+aurora_file = open("aurora_runtime.txt", "w")
+
+
+class PccGymDriver:
+
     flow_lookup = {}
-    
+
     def __init__(self, flow_id):
         global RESET_RATE_MIN
         global RESET_RATE_MAX
@@ -65,18 +68,23 @@ class PccGymDriver():
 
         self.rate = random.uniform(RESET_RATE_MIN, RESET_RATE_MAX)
         self.history_len = arg_or_default("--history-len", 10)
-        self.features = arg_or_default("--input-features",
-                                       default="sent latency inflation,"
-                                             + "latency ratio,"
-                                             + "send ratio").split(",")
-        self.history = sender_obs.SenderHistory(self.history_len,
-                                                self.features,
-                                                self.id)
+        self.features = arg_or_default(
+            "--input-features",
+            default="sent latency inflation," + "latency ratio," + "send ratio",
+        ).split(",")
+        self.history = sender_obs.SenderHistory(
+            self.history_len, self.features, self.id
+        )
         self.got_data = False
 
         self.agent = loaded_agent.LoadedModelAgent(MODEL_PATH)
 
         PccGymDriver.flow_lookup[flow_id] = self
+
+        # write debug file header
+        aurora_file.write(
+            "flow_id\tbytes_sent\tbytes_acked\tbytes_lost\tsend_start_time\tsend_end_time\trecv_start_time\trecv_end_time\trtt_samples\tpacket_size\tutility\n"
+        )
 
     def get_rate(self):
         if self.has_data():
@@ -98,9 +106,9 @@ class PccGymDriver():
         self.current_rate = random.uniform(RESET_RATE_MIN, RESET_RATE_MAX)
 
     def reset_history(self):
-        self.history = sender_obs.SenderHistory(self.history_len,
-                                                self.features,
-                                                self.id)
+        self.history = sender_obs.SenderHistory(
+            self.history_len, self.features, self.id
+        )
         self.got_data = False
 
     def reset(self):
@@ -108,9 +116,19 @@ class PccGymDriver():
         self.reset_rate()
         self.reset_history()
 
-    def give_sample(self, bytes_sent, bytes_acked, bytes_lost,
-                    send_start_time, send_end_time, recv_start_time,
-                    recv_end_time, rtt_samples, packet_size, utility):
+    def give_sample(
+        self,
+        bytes_sent,
+        bytes_acked,
+        bytes_lost,
+        send_start_time,
+        send_end_time,
+        recv_start_time,
+        recv_end_time,
+        rtt_samples,
+        packet_size,
+        utility,
+    ):
         self.record_observation(
             sender_obs.SenderMonitorInterval(
                 self.id,
@@ -122,36 +140,60 @@ class PccGymDriver():
                 recv_start=recv_start_time,
                 recv_end=recv_end_time,
                 rtt_samples=rtt_samples,
-                packet_size=packet_size
+                packet_size=packet_size,
             )
         )
 
     def get_by_flow_id(flow_id):
         return PccGymDriver.flow_lookup[flow_id]
 
-def give_sample(flow_id, bytes_sent, bytes_acked, bytes_lost,
-                send_start_time, send_end_time, recv_start_time,
-                recv_end_time, rtt_samples, packet_size, utility):
+
+def give_sample(
+    flow_id,
+    bytes_sent,
+    bytes_acked,
+    bytes_lost,
+    send_start_time,
+    send_end_time,
+    recv_start_time,
+    recv_end_time,
+    rtt_samples,
+    packet_size,
+    utility,
+):
     driver = PccGymDriver.get_by_flow_id(flow_id)
-    driver.give_sample(bytes_sent, bytes_acked, bytes_lost,
-                       send_start_time, send_end_time, recv_start_time,
-                       recv_end_time, rtt_samples, packet_size, utility)
+    driver.give_sample(
+        bytes_sent,
+        bytes_acked,
+        bytes_lost,
+        send_start_time,
+        send_end_time,
+        recv_start_time,
+        recv_end_time,
+        rtt_samples,
+        packet_size,
+        utility,
+    )
+    aurora_file.write(
+        f"{flow_id}\t{bytes_sent}\t{bytes_acked}\t{bytes_lost}\t{bytes_lost}\t{send_start_time}\t{send_end_time}\t{recv_start_time}\t{recv_end_time}\t{rtt_samples}\t{packet_size}\t{utility}\n"
+    )
+
 
 def apply_rate_delta(rate, rate_delta):
     global MIN_RATE
     global MAX_RATE
     global DELTA_SCALE
-    
+
     rate_delta *= DELTA_SCALE
 
     # We want a string of actions with average 0 to result in a rate change
     # of 0, so delta of 0.05 means rate * 1.05,
     # delta of -0.05 means rate / 1.05
     if rate_delta > 0:
-        rate *= (1.0 + rate_delta)
+        rate *= 1.0 + rate_delta
     elif rate_delta < 0:
-        rate /= (1.0 - rate_delta)
-    
+        rate /= 1.0 - rate_delta
+
     # For practical purposes, we may have maximum and minimum rates allowed.
     if rate < MIN_RATE:
         rate = MIN_RATE
@@ -159,15 +201,18 @@ def apply_rate_delta(rate, rate_delta):
         rate = MAX_RATE
 
     return rate
-    
+
+
 def reset(flow_id):
     driver = PccGymDriver.get_by_flow_id(flow_id)
     driver.reset()
 
+
 def get_rate(flow_id):
-    #print("Getting rate")
+    # print("Getting rate")
     driver = PccGymDriver.get_by_flow_id(flow_id)
     return driver.get_rate()
+
 
 def init(flow_id):
     driver = PccGymDriver(flow_id)
