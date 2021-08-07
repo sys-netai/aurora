@@ -53,7 +53,7 @@ for arg in sys.argv:
         RESET_RATE_MIN = float(arg_str)
         RESET_RATE_MAX = float(arg_str)
 
-aurora_file = open("aurora-runtime-{}.txt".format(os.getpid()), "w")
+# aurora_file = open("aurora-runtime-{}.txt".format(os.getpid()), "w")
 
 
 class PccGymDriver:
@@ -82,9 +82,9 @@ class PccGymDriver:
         PccGymDriver.flow_lookup[flow_id] = self
 
         # write debug file header
-        aurora_file.write(
-            "flow_id\tbytes_sent\tbytes_acked\tbytes_lost\tsend_start_time\tsend_end_time\trecv_start_time\trecv_end_time\trtt_samples\tpacket_size\tutility\n"
-        )
+        # aurora_file.write(
+        #     "flow_id\tbytes_sent\tbytes_acked\tbytes_lost\tsend_start_time\tsend_end_time\trecv_start_time\trecv_end_time\trtt_samples\tpacket_size\tutility\n"
+        # )
 
     def get_rate(self):
         if self.has_data():
@@ -174,10 +174,9 @@ def give_sample(
         packet_size,
         utility,
     )
-    aurora_file.write(
-        f"{flow_id}\t{bytes_sent}\t{bytes_acked}\t{bytes_lost}\t{bytes_lost}\t{send_start_time}\t{send_end_time}\t{recv_start_time}\t{recv_end_time}\t{rtt_samples}\t{packet_size}\t{utility}\n"
-    )
-
+    # aurora_file.write(
+    #     f"{flow_id}\t{bytes_sent}\t{bytes_acked}\t{bytes_lost}\t{bytes_lost}\t{send_start_time}\t{send_end_time}\t{recv_start_time}\t{recv_end_time}\t{rtt_samples}\t{packet_size}\t{utility}\n"
+    # )
 
 def apply_rate_delta(rate, rate_delta):
     global MIN_RATE
