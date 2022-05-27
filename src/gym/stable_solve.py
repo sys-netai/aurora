@@ -73,7 +73,7 @@ model = PPO1(
     gamma=gamma,
 )
 
-for i in range(0, 6):
+for i in range(0, 30):
     with model.graph.as_default():
         saver = tf.train.Saver()
         saver.save(training_sess, "./ckpt/pcc_model_%d.ckpt" % i)

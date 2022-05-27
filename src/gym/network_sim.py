@@ -31,7 +31,7 @@ sys.path.insert(0, parentdir)
 from common import sender_obs, config
 from common.simple_arg_parse import arg_or_default
 
-MI = 0.100
+MI = 0.03
 
 MAX_CWND = 5000
 MIN_CWND = 4
@@ -391,10 +391,10 @@ class SimulatedNetworkEnv(gym.Env):
         self.viewer = None
         self.rand = None
 
-        self.min_bw, self.max_bw = (100, 500)
-        self.min_lat, self.max_lat = (0.05, 0.5)
+        self.min_bw, self.max_bw = (100, 300)
+        self.min_lat, self.max_lat = (0.01, 0.1)
         self.min_queue, self.max_queue = (0, 8)
-        self.min_loss, self.max_loss = (0.0, 0.05)
+        self.min_loss, self.max_loss = (0.0, 0.02)
         self.history_len = history_len
         print("History length: %d" % history_len)
         self.features = features.split(",")
@@ -480,8 +480,8 @@ class SimulatedNetworkEnv(gym.Env):
         # event["Cwnd"] = sender_mi.cwnd
         # event["Cwnd Used"] = sender_mi.cwnd_used
         self.event_record["Events"].append(event)
-        #if event["Latency"] > 0.0:
-        #    self.run_dur = 0.5 * sender_mi.get("avg latency")
+        if event["Latency"] > 0.0:
+            self.run_dur = 0.5 * sender_mi.get("avg latency")
         # print("what is the avg latency: ", sender_mi.get("avg latency"))
         # print("Sender obs: %s" % sender_obs)
 
@@ -524,7 +524,7 @@ class SimulatedNetworkEnv(gym.Env):
                 history_len=self.history_len,
             )
         ]
-        #self.run_dur = 3 * lat
+        self.run_dur = 3 * lat
 
     def reset(self):
         self.steps_taken = 0

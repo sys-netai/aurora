@@ -22,7 +22,10 @@
 #define UDT_UNUSED __attribute__((unused))
 #endif
 
+#include <iostream>
+#include <fstream>
 #include <algorithm>
+
 
 #ifdef QUIC_PORT
 #ifdef QUIC_PORT_LOCAL
@@ -53,9 +56,12 @@ const size_t kInitialRttMicroseconds = 1 * 1000;
 // Number of bits per byte.
 const size_t kBitsPerByte = 8;
 // Duration of monitor intervals as a proportion of RTT.
-const float kMonitorIntervalDuration = 0.5f;
+const float kMonitorIntervalDuration = 30000;
 // Minimum number of packets in a monitor interval.
 const size_t kMinimumPacketsPerInterval = 5;
+
+const bool intervalOrPacket = true;
+
 }  // namespace
 
 #ifdef QUIC_PORT
@@ -73,11 +79,13 @@ QuicTime::Delta PccSender::ComputeMonitorDuration(
 QuicTime PccSender::ComputeMonitorDuration(
     QuicBandwidth sending_rate, 
     QuicTime rtt) {
-  
-  return
-      std::max(kMonitorIntervalDuration * rtt, 
-               kNumMicrosPerSecond * kMinimumPacketsPerInterval * kBitsPerByte * 
-                   kDefaultTCPMSS / (float)sending_rate);
+  // std::ofstream myfile;
+  // myfile.open("example.txt",std::fstream::app);
+  // myfile << rtt << std::endl;
+  // myfile.close();
+  if(intervalOrPacket) return kMonitorIntervalDuration;
+  else return kNumMicrosPerSecond * kMinimumPacketsPerInterval * kBitsPerByte * 
+                   kDefaultTCPMSS / (float)sending_rate;
 }
 #endif
 
@@ -126,7 +134,7 @@ PccSender::PccSender(QuicTime initial_rtt_us,
 
   // We'll tell the rate controller how many times per RTT it is called so it can run aglorithms
   // like doubling every RTT fairly easily.
-  double call_freq = 1.0 / kMonitorIntervalDuration;
+  double call_freq = initial_rtt_us / kMonitorIntervalDuration;
 
   // CLARG: "--pcc-rate-control=<rate_controller>" See src/pcc/rate_controler for more info.
   const char* rc_name = Options::Get("--pcc-rate-control=");
