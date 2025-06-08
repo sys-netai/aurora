@@ -74,10 +74,10 @@ QuicTime PccSender::ComputeMonitorDuration(
     QuicBandwidth sending_rate, 
     QuicTime rtt) {
   
-  return
-      std::max(kMonitorIntervalDuration * rtt, 
-               kNumMicrosPerSecond * kMinimumPacketsPerInterval * kBitsPerByte * 
-                   kDefaultTCPMSS / (float)sending_rate);
+  return 60000;// kMonitorIntervalDuration * rtt;
+      // std::max(kMonitorIntervalDuration * rtt, 
+      //          kNumMicrosPerSecond * kMinimumPacketsPerInterval * kBitsPerByte * 
+      //              kDefaultTCPMSS / (float)sending_rate);
 }
 #endif
 

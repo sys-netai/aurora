@@ -31,8 +31,8 @@ if not hasattr(sys, "argv"):
     sys.argv = [""]
 
 MIN_RATE = 0.5
-MAX_RATE = 300.0
-DELTA_SCALE = 0.05
+MAX_RATE = 1000.0
+DELTA_SCALE = 0.025
 
 RESET_RATE_MIN = 5.0
 RESET_RATE_MAX = 100.0
